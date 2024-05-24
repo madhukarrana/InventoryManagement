@@ -17,5 +17,21 @@ public class FilterParams {
         private double start;
         @JsonProperty("end")
         private double end;
+
+        public double getStart() {
+            return start;
+        }
+
+        public double getEnd() {
+            return end;
+        }
+    }
+
+    public String getSupplierId() {
+        return supplierId;
+    }
+
+    public PriceRange getPriceRange() {
+        return priceRange;
     }
 }

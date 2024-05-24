@@ -31,15 +31,15 @@ public class ProductController {
         } catch (BadRequestException exception){
             logger.error("error occurred while creating product. message - {}, stack trace - {}",
                     exception.getMessage(), Arrays.asList(exception.getStackTrace()));
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(CreateProductResponse.createFailureResponse(exception.getMessage()));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(GenericResponse.createFailureResponse(exception.getMessage()));
         } catch (InternalServerException exception){
             logger.error("error occurred while creating product. message - {}, stack trace - {}",
                     exception.getMessage(), Arrays.asList(exception.getStackTrace()));
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(CreateProductResponse.createFailureResponse(exception.getMessage()));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(GenericResponse.createFailureResponse(exception.getMessage()));
         } catch (Exception exception){
             logger.error("error occurred while creating product. message - {}, stack trace - {}",
                     exception.getMessage(), Arrays.asList(exception.getStackTrace()));
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(CreateProductResponse.createFailureResponse(exception.getMessage()));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(GenericResponse.createFailureResponse(exception.getMessage()));
         }
     }
 
@@ -50,11 +50,11 @@ public class ProductController {
         } catch (BadRequestException exception){
             logger.error("error occurred while updating product. message - {}, stack trace - {}",
                     exception.getMessage(), Arrays.asList(exception.getStackTrace()));
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(UpdateProductResponse.createFailureResponse(exception.getMessage()));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(GenericResponse.createFailureResponse(exception.getMessage()));
         } catch (Exception exception){
             logger.error("error occurred while updating product. message - {}, stack trace - {}",
                     exception.getMessage(), Arrays.asList(exception.getStackTrace()));
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(UpdateProductResponse.createFailureResponse(exception.getMessage()));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(GenericResponse.createFailureResponse(exception.getMessage()));
         }
     }
 
@@ -65,11 +65,11 @@ public class ProductController {
         } catch (BadRequestException exception){
             logger.error("error occurred while deleting product. message - {}, stack trace - {}",
                     exception.getMessage(), Arrays.asList(exception.getStackTrace()));
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(DeleteProductResponse.createFailureResponse(exception.getMessage()));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(GenericResponse.createFailureResponse(exception.getMessage()));
         } catch (Exception exception){
             logger.error("error occurred while deleting product. message - {}, stack trace - {}",
                     exception.getMessage(), Arrays.asList(exception.getStackTrace()));
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(DeleteProductResponse.createFailureResponse(exception.getMessage()));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(GenericResponse.createFailureResponse(exception.getMessage()));
         }
     }
 
@@ -92,8 +92,14 @@ public class ProductController {
     public ResponseEntity<Object> getDetailsByFilter(@RequestBody FilterParams filterParams){
         try {
             return ResponseEntity.status(HttpStatus.OK).body(productService.getDetailsByFilter(filterParams));
-        }catch (Exception exception){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(exception.getMessage());
+        } catch (BadRequestException exception){
+            logger.error("error fetching product details. message - {}, stack trace - {}",
+                    exception.getMessage(), Arrays.asList(exception.getStackTrace()));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(GenericResponse.createFailureResponse(exception.getMessage()));
+        } catch (Exception exception){
+            logger.error("error fetching product details. message - {}, stack trace - {}",
+                    exception.getMessage(), Arrays.asList(exception.getStackTrace()));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(GenericResponse.createFailureResponse(exception.getMessage()));
         }
     }
 
@@ -104,11 +110,11 @@ public class ProductController {
         } catch (BadRequestException exception){
             logger.error("error while adjusting product stock. message - {}, stack trace - {}",
                     exception.getMessage(), Arrays.asList(exception.getStackTrace()));
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(AdjustStockResponse.createFailureResponse(exception.getMessage()));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(GenericResponse.createFailureResponse(exception.getMessage()));
         } catch (Exception exception){
             logger.error("error while adjusting product stock. message - {}, stack trace - {}",
                     exception.getMessage(), Arrays.asList(exception.getStackTrace()));
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(AdjustStockResponse.createFailureResponse(exception.getMessage()));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(GenericResponse.createFailureResponse(exception.getMessage()));
         }
     }
 }

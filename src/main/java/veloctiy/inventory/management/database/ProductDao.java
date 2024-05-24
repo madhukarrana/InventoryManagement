@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import veloctiy.inventory.management.entity.Product;
 import veloctiy.inventory.management.exception.InternalServerException;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -64,10 +65,26 @@ public class ProductDao {
         }
     }
 
-    public List<Product> getProduct(HashMap<String, String> params) throws InternalServerException {
+    public List<Product> getProduct(HashMap<String, Object> filter) throws InternalServerException {
         try {
-            String query = "select * from sample where user_email = ? and user_mobile = ?;";
-            return jdbcTemplate.query(query, new ProductMapper(), new Object[]{});
+            StringBuilder query = new StringBuilder("select * from product where is_deleted = 0");
+            for (String key : filter.keySet()) {
+                String column = key;
+                if (key.equals(Product.startPriceValue)){
+                    column = Product.startPriceColumnMapping;
+                    query.append(" and ").append(column).append(" >= ?");
+                }else if (key.equals(Product.endPriceValue)){
+                    column = Product.endPriceColumnMapping;
+                    query.append(" and ").append(column).append(" <= ?");
+                }else {
+                    query.append(" and ").append(column).append(" = ?");
+                }
+            }
+            List<Object> values = new ArrayList<>();
+            for (Object value : filter.values()) {
+                values.add(value);
+            }
+            return jdbcTemplate.query(query.toString(), new ProductMapper(), values);
         }catch (DataAccessException exception){
             logger.error("error while executing query - {}", exception);
             throw new InternalServerException(exception.getMessage());

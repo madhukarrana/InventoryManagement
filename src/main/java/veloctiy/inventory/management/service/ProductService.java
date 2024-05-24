@@ -16,6 +16,8 @@ import veloctiy.inventory.management.model.response.*;
 import veloctiy.inventory.management.utils.ProductValidator;
 import veloctiy.inventory.management.utils.Util;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 @Component
@@ -30,7 +32,7 @@ public class ProductService {
 
     private Logger logger = LoggerFactory.getLogger(ProductService.class);
 
-    public CreateProductResponse create(CreateProductRequest request) throws BadRequestException, InternalServerException {
+    public GenericResponse create(CreateProductRequest request) throws BadRequestException, InternalServerException {
         logger.info("request received to create product, request - {}", request);
         productValidator.validate(request);
         Supplier supplier = supplierDao.getSupplier(request.getSupplierId());
@@ -41,10 +43,10 @@ public class ProductService {
         }
         Product product = getProduct(request);
         productDao.insert(product);
-        return CreateProductResponse.createSuccessResponse("product created successfully");
+        return GenericResponse.createSuccessResponse("product created successfully");
     }
 
-    public UpdateProductResponse update(UpdateProductRequest request) throws BadRequestException, InternalServerException {
+    public GenericResponse update(UpdateProductRequest request) throws BadRequestException, InternalServerException {
         logger.info("request received to update product, request - {}", request);
         productValidator.validate(request);
         Product product = productDao.getProduct(request.getProductId());
@@ -55,10 +57,10 @@ public class ProductService {
         }
         Product updatedProduct = updateProduct(product, request);
         productDao.update(updatedProduct);
-        return UpdateProductResponse.createSuccessResponse("product updated successfully");
+        return GenericResponse.createSuccessResponse("product updated successfully");
     }
 
-    public DeleteProductResponse delete(DeleteProductRequest request) throws BadRequestException, InternalServerException {
+    public GenericResponse delete(DeleteProductRequest request) throws BadRequestException, InternalServerException {
         logger.info("request received to delete product, request - {}", request);
         productValidator.validate(request);
         Product product = productDao.getProduct(request.getProductId());
@@ -68,7 +70,7 @@ public class ProductService {
             throw new BadRequestException(message);
         }
         productDao.delete(product);
-        return DeleteProductResponse.createSuccessResponse("product updated successfully");
+        return GenericResponse.createSuccessResponse("product updated successfully");
     }
 
     public ProductDetailsResponse getDetails(String productId) throws BadRequestException, InternalServerException {
@@ -80,16 +82,28 @@ public class ProductService {
             logger.error(message);
             throw new BadRequestException(message);
         }
-        ProductDetailsResponse response = getProductDetailsResponse(product);
-        return response;
+        return getProductDetailsResponse(product);
     }
 
-    public List<ProductDetailsResponse> getDetailsByFilter(FilterParams filterParams){
-
-        return null;
+    public List<ProductDetailsResponse> getDetailsByFilter(FilterParams filterParams) throws BadRequestException, InternalServerException {
+        logger.info("request received to get product list, filter - {}", filterParams);
+        productValidator.checkNull("filter params",filterParams);
+        HashMap<String, Object> filter = getFiter(filterParams);
+        List<Product> productList = productDao.getProduct(filter);
+        if (productList == null){
+            String message = "product does not exist for given filter " + filterParams;
+            logger.error(message);
+            throw new BadRequestException(message);
+        }
+        List<ProductDetailsResponse> productDetailsResponseList = new ArrayList<>();
+        for (Product product : productList){
+            ProductDetailsResponse productDetailsResponse = getProductDetailsResponse(product);
+            productDetailsResponseList.add(productDetailsResponse);
+        }
+        return productDetailsResponseList;
     }
 
-    public AdjustStockResponse adjustStock(AdjustStockRequest request) throws BadRequestException, InternalServerException {
+    public GenericResponse adjustStock(AdjustStockRequest request) throws BadRequestException, InternalServerException {
         logger.info("request received to adjust stock, request - {}", request);
         productValidator.checkBlank("product id", request.getProductId());
         productValidator.checkNull("adjust quantity", request.getAdjustQuantity());
@@ -107,7 +121,7 @@ public class ProductService {
         }
         product.setQuantity(updatedQuantity);
         productDao.update(product);
-        return AdjustStockResponse.createSuccessResponse("stock is adjusted successfully");
+        return GenericResponse.createSuccessResponse("stock is adjusted successfully");
     }
 
     public Product getProduct(CreateProductRequest request){
@@ -150,5 +164,20 @@ public class ProductService {
         productDetailsResponse.setPrice(product.getPrice());
         productDetailsResponse.setQuantity(product.getQuantity());
         return productDetailsResponse;
+    }
+
+    public HashMap<String, Object> getFiter(FilterParams filterParams){
+        HashMap<String, Object> filter = new HashMap<>();
+        if (filterParams.getSupplierId() != null){
+            filter.put(Product.supplierIdColumnMapping, filterParams.getSupplierId());
+        }
+        if (filterParams.getPriceRange() != null){
+            FilterParams.PriceRange priceRange = filterParams.getPriceRange();
+            Double start = priceRange.getStart();
+            Double end = priceRange.getEnd();
+            filter.put(Product.startPriceValue, start);
+            filter.put(Product.endPriceValue, end);
+        }
+        return filter;
     }
 }

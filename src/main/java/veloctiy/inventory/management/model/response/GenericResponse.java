@@ -7,17 +7,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class GenericResponse {
     @JsonProperty("status")
     private String status;
-    @JsonProperty("code")
-    private String code;
     @JsonProperty("message")
     private String message;
 
     public void setStatus(String status) {
         this.status = status;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
     }
 
     public void setMessage(String message) {

@@ -3,6 +3,15 @@ package veloctiy.inventory.management.entity;
 import java.sql.Timestamp;
 
 public class Product {
+
+
+    public static final String supplierIdColumnMapping = "supplier_id";
+    public static final String startPriceValue = "start_price";
+    public static final String startPriceColumnMapping = "price";
+    public static final String endPriceValue = "end_price";
+    public static final String endPriceColumnMapping = "price";
+
+
     private Long id;
     private String productId;
     private String name;
